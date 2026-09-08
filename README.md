@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# YZ-AWT Course Catalog
 
-## Getting Started
+YZ-AWT is the Lab 1 semester-project scaffold for Advanced Web Technologies. It is a course catalog built with Next.js 16, the App Router, TypeScript, and Tailwind CSS.
 
-First, run the development server:
+## Live application
+
+The production Vercel link will be added after deployment.
+
+## Implemented routes
+
+- `/` introduces the catalog and links to the course list.
+- `/about` explains the project and course context.
+- `/courses` loads the mock course data in a Server Component.
+- `/courses/[id]` displays a statically generated course page with an interactive like button.
+- `/courses/does-not-exist` demonstrates the custom course not-found state.
+
+## Component architecture
+
+The project keeps the Server and Client Component boundary narrow:
+
+- `lib/courses.ts` contains the typed mock data and asynchronous data-access functions.
+- `components/CourseCard.tsx` is a Server Component whose complete card is a Next.js `Link`.
+- `components/LikeButton.tsx` is the only Client Component. It uses local React state to increment likes.
+- `app/courses/[id]/page.tsx` awaits promised route parameters and exports `generateStaticParams` for every mock course.
+- `app/courses/[id]/loading.tsx` provides navigation feedback while course data loads.
+- `app/courses/not-found.tsx` provides a recovery path when `notFound()` handles an unknown course.
+
+## Run locally
+
+Node.js 20 or newer is required.
+
+1. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+2. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+3. Open [http://localhost:3000](http://localhost:3000).
+
+If port 3000 is unavailable, Next.js selects the next free port and prints it in the terminal.
+
+## Verify the project
+
+Run every automated check:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm test
+npm run lint
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The production build also verifies the six routes returned by `generateStaticParams`.

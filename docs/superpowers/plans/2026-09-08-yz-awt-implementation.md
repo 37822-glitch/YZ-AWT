@@ -46,7 +46,7 @@
 
 - [ ] **Step 2: Install the test harness**
 
-  Install `vitest`, `jsdom`, `@vitejs/plugin-react`, `vite-tsconfig-paths`, `@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/user-event`, and `@playwright/test` as development dependencies. Install Playwright's Chromium runtime before the browser acceptance task.
+  Install `vitest`, `jsdom`, `@vitejs/plugin-react`, `vite-tsconfig-paths`, `@testing-library/react`, `@testing-library/jest-dom`, and `@testing-library/user-event` as development dependencies. Use the bundled Playwright CLI wrapper for browser acceptance without adding a repository browser-test dependency.
 
 - [ ] **Step 3: Configure Vitest**
 
@@ -296,21 +296,19 @@
 **Files:**
 
 - Modify: `README.md`
-- Create: `tests/e2e/catalog.spec.ts`
-- Modify: `package.json`
 
 **Interfaces:**
 
 - Consumes: a successful production build and all application routes.
 - Produces: reproducible setup, test, and deployment documentation plus browser acceptance coverage.
 
-- [ ] **Step 1: Write browser acceptance before final polish**
+- [ ] **Step 1: Start browser acceptance before final polish**
 
-  Add Playwright coverage for `/`, `/about`, `/courses`, a known course, `/courses/does-not-exist`, and clicking the LikeButton. The known course test must observe the count increase without a page reload.
+  Start the production server and open an isolated Playwright CLI session for `/`, `/about`, `/courses`, a known course, and `/courses/does-not-exist`. Capture fresh snapshots after each navigation and a screenshot at desktop and mobile widths.
 
 - [ ] **Step 2: Run acceptance and verify failures are meaningful**
 
-  Start the production server and run the browser acceptance suite. Any failure must identify a missing route, copy, or interaction rather than a harness error.
+  Verify the shared navigation and expected content on every route. On the known course page, click the LikeButton and observe the count increase without a page reload. Any failure must identify a missing route, copy, layout, or interaction rather than a harness error.
 
 - [ ] **Step 3: Fix only acceptance gaps**
 
@@ -322,7 +320,7 @@
 
 - [ ] **Step 5: Verify and commit**
 
-  Run `npm test`, `npm run lint`, `npm run build`, and the full local browser suite. Commit as `docs: document the course catalog`.
+  Run `npm test`, `npm run lint`, `npm run build`, and the full Playwright CLI acceptance flow. Commit as `docs: document the course catalog`.
 
 ### Task 6: Publish and deploy
 
