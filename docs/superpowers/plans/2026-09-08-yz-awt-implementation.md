@@ -273,7 +273,7 @@
 
 - [ ] **Step 1: Write the failing shell tests**
 
-  Render the real home and About page components and assert their headings, project text, and `/courses` link. Render the real root layout to static markup with a child marker and assert that the resulting navigation exposes Home, Courses, and About links with `href` values `/`, `/courses`, and `/about`.
+  Render the real home and About page components and assert their headings, project text, and `/courses` link. Render the real root layout to static markup and assert that its navigation exposes Home, Courses, and About links with `href` values `/`, `/courses`, and `/about`.
 
 - [ ] **Step 2: Run the shell test and verify RED**
 
