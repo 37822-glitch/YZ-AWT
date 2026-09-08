@@ -4,7 +4,7 @@ YZ-AWT is the Lab 1 semester-project scaffold for Advanced Web Technologies. It 
 
 ## Live application
 
-The production Vercel link will be added after deployment.
+[Open the production deployment on Vercel](https://yz-awt.vercel.app).
 
 ## Implemented routes
 
