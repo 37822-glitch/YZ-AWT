@@ -1,10 +1,19 @@
 # YZ-AWT Course Catalog
 
-YZ-AWT is the Lab 1 semester-project scaffold for Advanced Web Technologies. It is a course catalog built with Next.js 16, the App Router, TypeScript, and Tailwind CSS.
+YZ-AWT is the semester-project course catalog for Advanced Web Technologies. It is built with Next.js 16, the App Router, TypeScript, Tailwind CSS, and shadcn/ui.
 
-## Live application
+## Lab 2 styling
 
-[Open the production deployment on Vercel](https://yz-awt.vercel.app).
+Lab 2 replaces the catalog's plain course containers with shadcn/ui `Card`
+and `Button` components, styles the shared navigation, and uses a mobile-first
+course grid: one column on phones, two from the `sm` breakpoint, and three from
+the `lg` breakpoint. `CourseCard` remains a Server Component.
+
+## Existing Lab 1 deployment
+
+[Open the earlier Lab 1 deployment on Vercel](https://yz-awt.vercel.app). The
+Lab 2 interface in this repository is verified locally at
+[http://localhost:3000](http://localhost:3000).
 
 ## Implemented routes
 
@@ -19,7 +28,8 @@ YZ-AWT is the Lab 1 semester-project scaffold for Advanced Web Technologies. It 
 The project keeps the Server and Client Component boundary narrow:
 
 - `lib/courses.ts` contains the typed mock data and asynchronous data-access functions.
-- `components/CourseCard.tsx` is a Server Component whose complete card is a Next.js `Link`.
+- `components/CourseCard.tsx` is a Server Component that composes shadcn/ui `Card`, `CardHeader`, `CardTitle`, `CardContent`, and `Button` inside a Next.js `Link`.
+- `components/ui/` contains the shadcn/ui component source generated for this project.
 - `components/LikeButton.tsx` is the only Client Component. It uses local React state to increment likes.
 - `app/courses/[id]/page.tsx` awaits promised route parameters and exports `generateStaticParams` for every mock course.
 - `app/courses/[id]/loading.tsx` provides navigation feedback while course data loads.
