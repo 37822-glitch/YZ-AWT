@@ -22,6 +22,8 @@ describe("CourseCard", () => {
       "React 19, Server Components, and the App Router.",
     );
     expect(screen.getByText("5 credits")).toBeInTheDocument();
-    expect(screen.getByText(/24/)).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "24 likes" }),
+    ).toBeInTheDocument();
   });
 });

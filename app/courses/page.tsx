@@ -13,7 +13,7 @@ export default async function CoursesPage() {
         <h1 className="mt-3 text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
           Explore the curriculum
         </h1>
-        <p className="mt-5 text-lg leading-8 text-muted">
+        <p className="mt-5 text-lg leading-8 text-muted-foreground">
           Browse the core and elective courses that shape the Advanced Web
           Technologies program.
         </p>
@@ -21,7 +21,7 @@ export default async function CoursesPage() {
 
       <section
         aria-label="Available courses"
-        className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3"
+        className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
       >
         {courses.map((course) => (
           <CourseCard

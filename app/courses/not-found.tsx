@@ -10,7 +10,7 @@ export default function CourseNotFound() {
         <h1 className="mt-3 text-4xl font-bold tracking-tight text-foreground">
           Course not found
         </h1>
-        <p className="mx-auto mt-4 max-w-lg text-lg leading-8 text-muted">
+        <p className="mx-auto mt-4 max-w-lg text-lg leading-8 text-muted-foreground">
           The course you requested is not in the catalog. Choose another course
           to continue exploring the curriculum.
         </p>

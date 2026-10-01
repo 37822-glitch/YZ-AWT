@@ -1,5 +1,13 @@
 import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
 type CourseCardProps = {
   id: string;
   title: string;
@@ -18,30 +26,37 @@ export default function CourseCard({
   return (
     <Link
       href={`/courses/${id}`}
-      className="group flex h-full flex-col rounded-2xl border border-border bg-surface p-6 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-300 hover:shadow-lg"
+      className="group block h-full rounded-xl"
     >
-      <div className="mb-5 flex items-center justify-between gap-4 text-sm font-semibold">
-        <span className="rounded-full bg-blue-50 px-3 py-1 text-brand">
-          {credits} credits
-        </span>
-        <span className="inline-flex items-center gap-1.5 text-muted">
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 24 24"
-            className="h-4 w-4 fill-blue-600"
+      <Card className="h-full border border-transparent transition hover:border-blue-300 hover:shadow-md">
+        <CardHeader>
+          <CardTitle
+            role="heading"
+            aria-level={2}
+            className="text-lg font-bold tracking-tight transition-colors group-hover:text-blue-700"
           >
-            <path d="M12 21s-7.2-4.35-9.6-8.53C.5 9.17 2.15 5 6.08 5A5.1 5.1 0 0 1 12 8.16 5.1 5.1 0 0 1 17.92 5c3.93 0 5.58 4.17 3.68 7.47C19.2 16.65 12 21 12 21Z" />
-          </svg>
-          {likes} likes
-        </span>
-      </div>
-      <h2 className="text-xl font-bold tracking-tight text-foreground transition-colors group-hover:text-blue-700">
-        {title}
-      </h2>
-      <p className="mt-3 text-base leading-7 text-muted">{description}</p>
-      <span className="mt-auto pt-6 text-sm font-semibold text-blue-700">
-        View course <span aria-hidden="true">→</span>
-      </span>
+            {title}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-1 flex-col gap-3">
+          <p className="leading-7 text-muted-foreground">{description}</p>
+          <div className="mt-auto flex items-center justify-between gap-3 pt-3">
+            <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-semibold text-brand">
+              {credits} credits
+            </span>
+            <Button variant="ghost" size="sm">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                className="fill-blue-600 text-blue-600"
+              >
+                <path d="M12 21s-7.2-4.35-9.6-8.53C.5 9.17 2.15 5 6.08 5A5.1 5.1 0 0 1 12 8.16 5.1 5.1 0 0 1 17.92 5c3.93 0 5.58 4.17 3.68 7.47C19.2 16.65 12 21 12 21Z" />
+              </svg>
+              {likes} likes
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </Link>
   );
 }

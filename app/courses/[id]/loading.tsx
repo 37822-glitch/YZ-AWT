@@ -9,7 +9,9 @@ export default function Loading() {
         <div className="h-3 w-28 rounded-full bg-blue-200" />
         <div className="mt-6 h-10 max-w-xl rounded-xl bg-slate-200" />
         <div className="mt-8 h-5 max-w-2xl rounded-lg bg-slate-100" />
-        <p className="mt-8 font-semibold text-muted">Loading course…</p>
+        <p className="mt-8 font-semibold text-muted-foreground">
+          Loading course…
+        </p>
       </div>
     </main>
   );

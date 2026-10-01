@@ -13,7 +13,9 @@ describe("application shell", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "YZ-AWT Course Catalog" }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Welcome to the course catalog/)).toBeInTheDocument();
+    expect(screen.getByText(/Welcome to the course catalog/)).toHaveClass(
+      "text-muted-foreground",
+    );
     expect(screen.getByRole("link", { name: "Browse courses" })).toHaveAttribute(
       "href",
       "/courses",

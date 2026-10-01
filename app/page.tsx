@@ -11,7 +11,7 @@ export default function Home() {
           <h1 className="mt-4 max-w-3xl text-5xl font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-6xl">
             YZ-AWT Course Catalog
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-muted sm:text-xl">
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl">
             Welcome to the course catalog. Explore a focused curriculum for
             building modern, reliable web applications.
           </p>

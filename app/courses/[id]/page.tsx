@@ -44,7 +44,9 @@ export default async function CoursePage({ params }: CoursePageProps) {
 
         <div className="grid gap-10 px-6 py-8 sm:px-10 sm:py-10 md:grid-cols-[1fr_auto] md:items-end">
           <div>
-            <p className="text-lg leading-8 text-muted">{course.description}</p>
+            <p className="text-lg leading-8 text-muted-foreground">
+              {course.description}
+            </p>
             <p className="mt-6 inline-flex rounded-full bg-blue-50 px-4 py-2 text-sm font-bold text-brand">
               {course.credits} credits
             </p>

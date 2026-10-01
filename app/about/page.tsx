@@ -8,15 +8,15 @@ export default function AboutPage() {
         About this catalog
       </h1>
       <div className="mt-8 rounded-3xl border border-border bg-surface p-8 shadow-xl shadow-blue-950/5 sm:p-10">
-        <p className="text-lg leading-8 text-muted">
+        <p className="text-lg leading-8 text-muted-foreground">
           YZ-AWT is a course catalog built as the semester project for Advanced
           Web Technologies.
         </p>
-        <p className="mt-5 text-lg leading-8 text-muted">
+        <p className="mt-5 text-lg leading-8 text-muted-foreground">
           It uses the Next.js 16 App Router to demonstrate file-based routing,
           Server and Client Components, dynamic routes, and TypeScript typing.
         </p>
-        <p className="mt-5 text-lg leading-8 text-muted">
+        <p className="mt-5 text-lg leading-8 text-muted-foreground">
           Each lab will extend this same project with more production-ready web
           application capabilities.
         </p>
