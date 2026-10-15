@@ -4,16 +4,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import ElectiveFilter from "@/components/ElectiveFilter";
 
-const useSWRMock = vi.fn();
+const swrMock = vi.fn();
 
 vi.mock("swr", () => ({
-  default: (...args: unknown[]) => useSWRMock(...args),
+  default: (...args: unknown[]) => swrMock(...args),
 }));
 
 describe("ElectiveFilter", () => {
   beforeEach(() => {
-    useSWRMock.mockReset();
-    useSWRMock.mockReturnValue({
+    swrMock.mockReset();
+    swrMock.mockReturnValue({
       data: [
         {
           id: "api-design",
@@ -33,7 +33,7 @@ describe("ElectiveFilter", () => {
     const user = userEvent.setup();
     render(<ElectiveFilter />);
 
-    expect(useSWRMock).toHaveBeenLastCalledWith(
+    expect(swrMock).toHaveBeenLastCalledWith(
       "http://localhost:8000/courses",
       expect.any(Function),
     );
@@ -41,7 +41,7 @@ describe("ElectiveFilter", () => {
 
     await user.click(screen.getByRole("checkbox", { name: "Electives only" }));
 
-    expect(useSWRMock).toHaveBeenLastCalledWith(
+    expect(swrMock).toHaveBeenLastCalledWith(
       "http://localhost:8000/courses?is_elective=true",
       expect.any(Function),
     );

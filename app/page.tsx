@@ -35,11 +35,11 @@ export default function Home() {
           <dl className="mt-8 grid grid-cols-2 gap-6 border-t border-white/15 pt-7">
             <div>
               <dt className="text-sm text-blue-200">Routes</dt>
-              <dd className="mt-1 text-2xl font-bold">4</dd>
+              <dd className="mt-1 text-2xl font-bold">5</dd>
             </div>
             <div>
               <dt className="text-sm text-blue-200">Client components</dt>
-              <dd className="mt-1 text-2xl font-bold">1</dd>
+              <dd className="mt-1 text-2xl font-bold">3</dd>
             </div>
           </dl>
         </div>
