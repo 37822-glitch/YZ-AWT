@@ -14,19 +14,19 @@
 
 - Treat `YZ-AWT` as the lab's existing `course-catalog` frontend; do not rename either repository.
 - Preserve existing Lab 4 query, sorting, searching, and pagination behavior.
-- Allow only the exact browser origin `http://localhost:3000`; do not include a trailing slash.
+- Default to the exact browser origin `http://localhost:3000`; allow additional exact origins only through `CORS_ORIGINS`.
 - Keep Python fields in snake_case and serialize model JSON in camelCase through `CamelModel`.
 - Keep `is_elective` as the query-parameter spelling.
 - Use `cache: "no-store"` for both Next.js server-side course reads.
 - Keep `.env.local` out of Git and define both API URL variables as `http://localhost:8000`.
-- Do not implement the five optional bonus tasks.
+- Implement generated OpenAPI types, environment-driven CORS origins, and explicit CORS method/header allowlists; omit the rewrite and frozen-data experiments.
 - Preserve the current visual system and accessible interaction states.
 - Use `apply_patch` for source and documentation edits; use package managers only for dependency metadata.
 - End with at least three new meaningful backend commits and five new meaningful frontend commits, then push both `main` branches to their existing `37822-glitch` remotes.
 
 ## Review focus
 
-- A foreign or trailing-slash origin must never receive CORS permission; Task 1 pins both exact and foreign-origin behavior.
+- A foreign or trailing-slash origin must never receive CORS permission; Tasks 1 and 9 pin exact, configured, and rejected-origin behavior.
 - A missing `API_URL` must fail with the lab's clear configuration message; Task 4 tests module initialization.
 - A backend `500` for one course must throw rather than become a false not-found result; Task 4 distinguishes `404` from every other non-success status.
 - Repeated user actions while a mutation is pending must not send duplicate requests; Tasks 7 and 8 test disabled pending controls.
@@ -310,7 +310,79 @@ Expected: all selected tests pass.
 
 Run: `git add components/EnrollForm.tsx app/courses/'[id]'/page.tsx tests/enroll-form.test.tsx tests/course-page.test.tsx && git commit -m "feat: add course enrollment form"`.
 
-### Task 9: Required breakage journal and READMEs
+### Task 9: Environment-driven explicit CORS policy
+
+**Files:**
+- Modify: `../course-catalog-api/main.py`
+- Modify: `../course-catalog-api/tests/test_api.py`
+
+**Interfaces:**
+- Consumes: `CORS_ORIGINS` and the completed FastAPI app.
+- Produces: `cors_origins() -> list[str]` plus middleware restricted to `GET`, `POST`, and `Content-Type`.
+
+- [ ] **Step 1: Add failing bonus CORS tests**
+
+Test the default origin, a comma-separated `localhost` plus `127.0.0.1` environment value, a successful enrollment preflight, and `400` preflights for `DELETE` and `Authorization`.
+
+- [ ] **Step 2: Verify the bonus tests fail**
+
+Run: `python -m unittest tests.test_api.CorsConfigurationTests -v`.
+Expected: failure because the environment reader is missing and wildcard permissions accept the forbidden method and header.
+
+- [ ] **Step 3: Implement the narrower policy**
+
+Read `CORS_ORIGINS` with the exact default `http://localhost:3000`, split it on commas, and configure `allow_methods=["GET", "POST"]` plus `allow_headers=["Content-Type"]`.
+
+- [ ] **Step 4: Verify the complete backend suite**
+
+Run: `python -m unittest discover -s tests -v`.
+Expected: all backend tests pass, including both rejected preflights.
+
+- [ ] **Step 5: Commit the backend bonus**
+
+Run: `git add main.py tests/test_api.py && git commit -m "feat: configure explicit CORS policy"`.
+
+### Task 10: Generated OpenAPI frontend types
+
+**Files:**
+- Modify: `package.json`
+- Modify: `package-lock.json`
+- Create: `lib/schema.d.ts`
+- Modify: `lib/courses.ts`
+- Create: `tests/schema-contract.test.ts`
+- Modify temporarily, restore before commit: `../course-catalog-api/models.py`
+
+**Interfaces:**
+- Consumes: FastAPI `/openapi.json` and `components["schemas"]` from the generated declaration file.
+- Produces: generated `Course` and `Enrollment` aliases used by every frontend consumer.
+
+- [ ] **Step 1: Add a failing type-contract test**
+
+Create a compile-time and runtime fixture typed as `components["schemas"]["Course"]` with all six course fields and camelCase `isElective`.
+
+- [ ] **Step 2: Verify the schema contract is absent**
+
+Run: `npx tsc --noEmit`.
+Expected: failure because `lib/schema.d.ts` does not exist.
+
+- [ ] **Step 3: Generate and consume the schema**
+
+Install `openapi-typescript` as a development dependency, add `generate:types` using `http://localhost:8000/openapi.json -o lib/schema.d.ts`, start FastAPI, run the generator, and replace handwritten `Course` and `Enrollment` definitions in `lib/courses.ts` with generated aliases.
+
+- [ ] **Step 4: Verify types and frontend tests**
+
+Run: `npx tsc --noEmit && npm test`.
+Expected: type checking and all frontend tests pass.
+
+- [ ] **Step 5: Run and restore the contract-drift experiment**
+
+Temporarily rename one backend model field, regenerate types, and run `npx tsc --noEmit`; record the stale frontend property errors. Restore `models.py`, regenerate the original schema, and rerun type checking successfully.
+
+- [ ] **Step 6: Commit the frontend bonus**
+
+Run: `git add package.json package-lock.json lib/schema.d.ts lib/courses.ts tests/schema-contract.test.ts && git commit -m "feat: generate course types from OpenAPI"`.
+
+### Task 11: Required breakage journal and READMEs
 
 **Files:**
 - Modify temporarily, restore before commit: `../course-catalog-api/main.py`
@@ -320,7 +392,7 @@ Run: `git add components/EnrollForm.tsx app/courses/'[id]'/page.tsx tests/enroll
 
 **Interfaces:**
 - Consumes: the completed application and actual browser/terminal evidence.
-- Produces: five evidence-backed journal entries and current run/API documentation.
+- Produces: five required breakage entries, the OpenAPI contract-drift observation, and current run/API documentation.
 
 - [ ] **Step 1: Run the five controlled breakages**
 
@@ -332,7 +404,7 @@ Run both test suites and inspect `git diff` in both repositories. Expected: appl
 
 - [ ] **Step 3: Update the backend README**
 
-Add “What changed” with the exact allowed origin and reason, camelCase response contract, all three new operations, example responses, current setup, and verification commands.
+Add “What changed” with the default/configurable allowed origins and reason, explicit CORS permissions, camelCase response contract, all three new operations, example responses, current setup, and verification commands.
 
 - [ ] **Step 4: Commit the backend documentation**
 
@@ -340,13 +412,13 @@ Run: `git add README.md && git commit -m "docs: explain Lab 5 API integration"`.
 
 - [ ] **Step 5: Update the frontend README**
 
-Document backend-first startup, `.env.local` variable names and values, current routes and components, a five-entry Breakage journal with collected evidence, and Decisions explaining removal of `generateStaticParams` plus like-versus-enrollment preflight behavior.
+Document backend-first startup, `.env.local` variable names and values, generated-type command, current routes and components, a five-entry Breakage journal with collected evidence, the contract-drift observation, and Decisions explaining removal of `generateStaticParams` plus like-versus-enrollment preflight behavior.
 
 - [ ] **Step 6: Commit the frontend documentation**
 
 Run: `git add README.md && git commit -m "docs: add Lab 5 breakage journal"`.
 
-### Task 10: Final acceptance and delivery
+### Task 12: Final acceptance and delivery
 
 **Files:**
 - Verify only; modify a source file only if a failing acceptance check requires a test-first repair.
@@ -357,11 +429,11 @@ Run: `git add README.md && git commit -m "docs: add Lab 5 breakage journal"`.
 
 - [ ] **Step 1: Run the backend acceptance suite**
 
-Run `python -m unittest discover -s tests -v`, start FastAPI, and verify the six `/docs` operations, camelCase responses, exactly two elective courses, all `200/201/404/422` cases, allowed/foreign origin headers, and successful enrollment preflight with `curl`.
+Run `python -m unittest discover -s tests -v`, start FastAPI, and verify the six `/docs` operations, camelCase responses, exactly two elective courses, all `200/201/404/422` cases, default/configured/foreign origin headers, successful enrollment preflight, and rejected `DELETE` and `Authorization` preflights with `curl`.
 
 - [ ] **Step 2: Run frontend static verification with FastAPI stopped**
 
-Stop FastAPI, then run `npm test`, `npm run lint`, and `npm run build`. Expected: every command exits `0`; the build does not contact port 8000.
+Stop FastAPI, then run `npx tsc --noEmit`, `npm test`, `npm run lint`, and `npm run build`. Expected: every command exits `0`; the build does not contact port 8000.
 
 - [ ] **Step 3: Run the complete browser acceptance path**
 

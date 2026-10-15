@@ -17,10 +17,12 @@ The implementation includes every required item from the Lab 5 acceptance checkl
 - Browser-side filtering, liking, and enrollment through `NEXT_PUBLIC_API_URL`.
 - Loading, not-found, and retryable error states.
 - Five required controlled breakage experiments and a documented breakage journal.
+- Three non-destructive bonus tasks: generated OpenAPI types, environment-driven CORS origins, and explicit CORS allowlists.
 - Automated backend and frontend tests, production-build verification with the backend stopped, and real-browser integration checks.
 - Meaningful commits in both repositories and pushes to their existing `37822-glitch` GitHub remotes.
 
-The optional bonus tasks are out of scope. The implementation does not add a Next.js rewrite, generated OpenAPI types, environment-driven CORS origins, frozen-data experiments, or explicit CORS method/header allowlists.
+Deployment is out of scope because Lab 5 evaluates the two local services and their GitHub repositories rather than a hosted environment.
+The rewrite-instead-of-CORS and frozen-data bonus experiments are also excluded at the project owner's request.
 
 ## Repository boundaries
 
@@ -35,7 +37,7 @@ The repositories stay independently runnable and independently testable. The fro
 The application uses two request paths:
 
 1. `/courses` and `/courses/[id]` fetch data from FastAPI inside Next.js Server Components. These requests are not subject to browser CORS checks.
-2. `/filter`, `LikeButton`, and `EnrollForm` send requests from the browser directly to FastAPI. These requests require the backend to grant permission to the exact `http://localhost:3000` origin.
+2. `/filter`, `LikeButton`, and `EnrollForm` send requests from the browser directly to FastAPI through `NEXT_PUBLIC_API_URL`. These requests require the backend to grant permission to the exact browser origin.
 
 All course reads use `cache: "no-store"`. Removing `generateStaticParams()` prevents course API requests during `next build`, so the build must succeed while the backend is stopped.
 
@@ -56,7 +58,7 @@ The like route increments the matching course's `likes` value and returns the up
 
 `POST /enrollments` accepts `courseId` and `studentName`, requires a name of at least two characters, verifies that the course exists, assigns an incrementing in-memory ID, stores the enrollment, and returns `201`. Validation errors return `422`; an unknown course returns `404`. `GET /enrollments` returns the current in-memory collection.
 
-CORS middleware allows only `http://localhost:3000`, all methods, and all headers. An allowed response includes `access-control-allow-origin`; a foreign origin receives no permission header; the enrollment preflight returns `200`.
+CORS middleware reads a comma-separated origin list from `CORS_ORIGINS` and defaults to only `http://localhost:3000`. It explicitly allows `GET` and `POST` plus the `Content-Type` header. An allowed response includes `access-control-allow-origin`; a foreign origin receives no permission header; the enrollment preflight returns `200`; preflights for `DELETE` or `Authorization` return `400`.
 
 ## Frontend behavior
 
@@ -66,7 +68,7 @@ The existing course list and detail presentation remain visually consistent with
 
 `app/courses/error.tsx` is a Client Component. It logs the received error and calls the Next.js `retry` callback from a visible “Try again” button.
 
-`ElectiveFilter` uses SWR and requests either `/courses` or `/courses?is_elective=true` directly from the browser. It renders the course title, credit count, and elective marker. `/filter` hosts the component, and the shared navigation links to that route.
+`ElectiveFilter` uses SWR and requests either `/courses` or `/courses?is_elective=true` directly from the browser. The component renders the course title, credit count, and elective marker. `/filter` hosts the component, and the shared navigation links to that route.
 
 `LikeButton` sends a bodyless `POST` request to the course like endpoint and replaces its displayed count with the returned server value. It shows a clear failure message when the request fails. Because this is a simple bodyless POST with no custom headers, the browser does not send a preflight.
 
@@ -90,9 +92,17 @@ The required journal records five temporary experiments:
 
 Each entry records a browser-console quotation, Network request statuses, the observed backend behavior, the root cause, and the repair. Every temporary change is reverted before the final verification. The final Git state contains only intentional working code and documentation.
 
+## Bonus implementation
+
+The frontend adds `openapi-typescript` as a development dependency and generates `lib/schema.d.ts` from FastAPI's `/openapi.json`. `Course` and `Enrollment` become aliases of the generated schemas rather than handwritten copies. A temporary backend field rename followed by regeneration demonstrates that TypeScript catches every stale frontend use; both the backend field and generated schema are then restored.
+
+The CORS origin list comes from `CORS_ORIGINS`, so verification can allow both `localhost` and `127.0.0.1` without code edits. The final method and header lists are explicit rather than wildcards. Rejected `DELETE` and `Authorization` preflights demonstrate the narrower permission surface.
+
 ## Testing and verification
 
 Backend tests cover camelCase serialization, snake_case query compatibility, CORS headers and preflight behavior, all successful routes, `404` cases, enrollment validation, and in-memory state changes.
+
+Bonus coverage verifies the default and multi-origin environment configuration, rejected method/header preflights, and generated TypeScript contract consumption. The contract-rename experiment is recorded with observed evidence and restored working state.
 
 Frontend tests mock network boundaries and cover API helpers, filter states, likes, enrollment success and rejection, error recovery, and the updated course pages. Linting and the production build must pass. The production build runs with FastAPI stopped.
 
