@@ -1,0 +1,19 @@
+{
+  "folders": [
+    {
+      "name": "YZ-AWT Frontend",
+      "path": "."
+    },
+    {
+      "name": "Course Catalog API",
+      "path": "../course-catalog-api"
+    }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "files.exclude": {
+      "**/.next": true,
+      "**/__pycache__": true
+    }
+  }
+}

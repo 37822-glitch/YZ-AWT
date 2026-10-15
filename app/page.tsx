@@ -39,7 +39,7 @@ export default function Home() {
             </div>
             <div>
               <dt className="text-sm text-blue-200">Client components</dt>
-              <dd className="mt-1 text-2xl font-bold">3</dd>
+              <dd className="mt-1 text-2xl font-bold">4</dd>
             </div>
           </dl>
         </div>
