@@ -51,6 +51,7 @@ describe("application shell", () => {
     expect(links).toEqual([
       { href: "/", text: "Home" },
       { href: "/courses", text: "Courses" },
+      { href: "/filter", text: "Filter" },
       { href: "/about", text: "About" },
     ]);
   });

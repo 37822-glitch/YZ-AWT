@@ -37,6 +37,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 Courses
               </Link>
               <Link
+                href="/filter"
+                className="inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold transition-colors hover:bg-white/10 sm:px-4"
+              >
+                Filter
+              </Link>
+              <Link
                 href="/about"
                 className="inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold transition-colors hover:bg-white/10 sm:px-4"
               >
@@ -48,7 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="flex flex-1 flex-col">{children}</div>
         <footer className="border-t border-border bg-surface">
           <div className="mx-auto w-full max-w-6xl px-5 py-6 text-sm text-muted-foreground sm:px-8">
-            Advanced Web Technologies · Lab 2
+            Advanced Web Technologies · Lab 5
           </div>
         </footer>
       </body>
