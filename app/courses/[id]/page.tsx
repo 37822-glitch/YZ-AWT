@@ -1,18 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import EnrollForm from "@/components/EnrollForm";
 import LikeButton from "@/components/LikeButton";
-import { getCourse, getCourses } from "@/lib/courses";
+import { getCourse } from "@/lib/courses";
 
 type CoursePageProps = {
   params: Promise<{ id: string }>;
 };
-
-export async function generateStaticParams() {
-  const courses = await getCourses();
-
-  return courses.map((course) => ({ id: course.id }));
-}
 
 export default async function CoursePage({ params }: CoursePageProps) {
   const { id } = await params;
@@ -51,8 +46,9 @@ export default async function CoursePage({ params }: CoursePageProps) {
               {course.credits} credits
             </p>
           </div>
-          <LikeButton initialLikes={course.likes} />
+          <LikeButton courseId={course.id} initialLikes={course.likes} />
         </div>
+        <EnrollForm courseId={course.id} />
       </article>
     </main>
   );

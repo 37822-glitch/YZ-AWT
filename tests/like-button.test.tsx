@@ -1,18 +1,39 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import LikeButton from "@/components/LikeButton";
 
 describe("LikeButton", () => {
-  it("increments the local like count without navigation", async () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("persists a like through the FastAPI endpoint", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        id: "modern-frontend",
+        title: "Modern Frontend: React & Next.js",
+        description: "React 19, Server Components, and the App Router.",
+        credits: 5,
+        isElective: false,
+        likes: 25,
+      }),
+    } as unknown as Response);
+    vi.stubGlobal("fetch", fetchMock);
     const user = userEvent.setup();
-    render(<LikeButton initialLikes={24} />);
+    render(<LikeButton courseId="modern-frontend" initialLikes={24} />);
 
     const button = screen.getByRole("button", { name: "24 likes" });
     await user.click(button);
 
-    expect(button).toHaveAccessibleName("25 likes");
-    expect(button).toHaveTextContent("25");
+    expect(await screen.findByRole("button", { name: "25 likes" })).toHaveTextContent(
+      "25",
+    );
+    expect(fetchMock).toHaveBeenCalledWith(
+      "http://localhost:8000/courses/modern-frontend/like",
+      { method: "POST" },
+    );
   });
 });

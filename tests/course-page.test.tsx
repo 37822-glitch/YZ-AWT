@@ -1,24 +1,26 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import CoursePage, {
-  generateStaticParams,
-} from "@/app/courses/[id]/page";
+import CoursePage from "@/app/courses/[id]/page";
 import Loading from "@/app/courses/[id]/loading";
 import CourseNotFound from "@/app/courses/not-found";
 
-describe("dynamic course route", () => {
-  it("generates a static parameter for every lab course", async () => {
-    await expect(generateStaticParams()).resolves.toEqual([
-      { id: "modern-frontend" },
-      { id: "backend-fastapi" },
-      { id: "databases-postgresql" },
-      { id: "api-design" },
-      { id: "web-security" },
-      { id: "ai-integration" },
-    ]);
-  });
+vi.mock("@/lib/courses", () => ({
+  getCourse: vi.fn().mockImplementation(async (id: string) =>
+    id === "modern-frontend"
+      ? {
+          id,
+          title: "Modern Frontend: React & Next.js",
+          description: "React 19, Server Components, and the App Router.",
+          credits: 5,
+          isElective: false,
+          likes: 24,
+        }
+      : undefined,
+  ),
+}));
 
+describe("dynamic course route", () => {
   it("awaits the route parameters and renders the selected course", async () => {
     render(
       await CoursePage({
@@ -34,6 +36,9 @@ describe("dynamic course route", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("5 credits")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "24 likes" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Enroll in this course" }),
+    ).toBeInTheDocument();
   });
 
   it("throws the Next.js 404 signal for an unknown course", async () => {
