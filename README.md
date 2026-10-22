@@ -87,17 +87,77 @@ confirm that the API exposes browser-friendly camelCase fields such as
 
 ## CORS diagnostic journal
 
-These are the five required failure scenarios and their distinguishing
-signals. They are diagnostic references; the repository keeps only the final,
-working configuration.
+These are the five required controlled failures. Each entry records the
+browser evidence and the diagnostic step that identified the cause. The
+repository keeps only the restored, working configuration.
 
-| Scenario | Browser/API evidence | Root cause and repair |
-| --- | --- | --- |
-| CORS middleware absent | Simple GET/like reaches FastAPI with `200`, but the browser blocks the response; enrollment preflight fails before POST | No permission headers; restore `CORSMiddleware` |
-| Allowed origin has a trailing slash | Preflight returns `400 Disallowed CORS origin` for `http://localhost:3000/` | Origins are exact strings; use `http://localhost:3000` |
-| POST omitted from allowed methods | GET/filter still works; enrollment preflight returns `400 Disallowed CORS method` | Add `POST` to the explicit method list |
-| Frontend opened at `127.0.0.1:3000` | FastAPI may return `200`, but the browser blocks access | `127.0.0.1` and `localhost` are different origins; add it to `CORS_ORIGINS` when needed |
-| Pagination key misspelled | `/courses` returns `500` and the server traceback shows `KeyError`; mutation routes still work | Repair the dependency dictionary lookup; this is an application error, not CORS |
+### Breakage 1: CORS middleware removed
+
+- **What I did:** Commented out the complete `app.add_middleware(...)` block.
+- **Console:** `No 'Access-Control-Allow-Origin' header is present on the requested resource.`
+- **Network:** Browser `GET /courses` and `POST /courses/{id}/like` rows were
+  blocked as CORS errors even though the FastAPI terminal recorded `200 OK`;
+  the like still changed server state. `OPTIONS /enrollments` returned `405`,
+  so the browser never sent the enrollment `POST`. The Server Component at
+  `/courses` continued to work.
+- **Cause:** No middleware added permission headers or handled preflight.
+- **How I found it:** Algorithm steps 3 and 4: the response lacked
+  `access-control-allow-origin`, and the preflight status was `405` rather than
+  a CORS validation response.
+
+### Breakage 2: Trailing slash in the allowed origin
+
+- **What I did:** Changed the origin to `http://localhost:3000/`.
+- **Console:** `No 'Access-Control-Allow-Origin' header is present on the requested resource.`
+- **Network:** Browser GET and like responses were blocked. The enrollment
+  `OPTIONS` request returned `400 Disallowed CORS origin`, and the browser did
+  not send the enrollment `POST`.
+- **Cause:** An origin is an exact scheme, host, and port. The trailing slash
+  made the configured value different from `http://localhost:3000`.
+- **How I found it:** Algorithm steps 3 and 4: the permission header was absent,
+  and the `400` preflight body named the origin as the rejected part.
+
+### Breakage 3: POST removed from allowed methods
+
+- **What I did:** Removed the configured `allow_methods` list, leaving
+  Starlette's default method policy.
+- **Console:** `Response to preflight request doesn't pass access control check: It does not have HTTP ok status.`
+- **Network:** `/filter` and the like still worked because their requests are
+  simple. `OPTIONS /enrollments` returned `400 Disallowed CORS method`; the
+  browser did not send the enrollment `POST`.
+- **Cause:** The default policy allowed `GET`, but not the requested `POST`.
+- **How I found it:** Algorithm step 4: the preflight response still had the
+  correct origin header, but its method list omitted `POST` and its body named
+  the method failure.
+
+### Breakage 4: Frontend opened on a different origin
+
+- **What I did:** Temporarily allowed the host in `allowedDevOrigins`, then
+  opened the frontend at `http://127.0.0.1:3000/filter` while FastAPI allowed
+  only `http://localhost:3000`.
+- **Console:** `No 'Access-Control-Allow-Origin' header is present on the requested resource.`
+- **Network:** The browser's `GET /courses` row was blocked as a CORS error even
+  though the FastAPI terminal recorded `200 OK`.
+- **Cause:** `127.0.0.1` and `localhost` are different hosts and therefore
+  different origins.
+- **How I found it:** Algorithm step 3: the request `Origin` value did not match
+  the configured origin character for character, so the permission header was
+  absent.
+
+### Breakage 5: Python error that looks like CORS
+
+- **What I did:** Replaced the first pagination lookup `p["offset"]` with the
+  misspelled `p["ofset"]`.
+- **Console:** `No 'Access-Control-Allow-Origin' header is present on the requested resource.`
+- **Network:** The browser's course request was blocked, while FastAPI logged
+  `GET /courses 500 Internal Server Error`. The like and enrollment routes
+  continued to work, and the Server Component `/courses` route showed
+  `error.tsx`.
+- **Cause:** The route raised `KeyError: 'ofset'`; the failure was an application
+  exception, not a CORS configuration problem.
+- **How I found it:** Algorithm steps 2 and 5: the backend terminal showed the
+  `500` status and traceback, and the server-to-server page failed even though
+  browser CORS rules do not apply to it.
 
 Preflight is expected for enrollment because JSON uses the non-safelisted
 `Content-Type: application/json` header. The like request has no custom header,
