@@ -9,21 +9,22 @@ describe("EnrollForm", () => {
     vi.unstubAllGlobals();
   });
 
-  it("submits camelCase enrollment data and displays the returned number", async () => {
+  it("submits the existing student ID and displays the returned number", async () => {
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue({
       ok: true,
       status: 201,
       json: vi.fn().mockResolvedValue({
         id: 7,
         courseId: "web-security",
-        studentName: "Aigerim",
+        studentId: 2,
+        enrolledAt: "2026-11-12T12:00:00Z",
       }),
     } as unknown as Response);
     vi.stubGlobal("fetch", fetchMock);
     const user = userEvent.setup();
     render(<EnrollForm courseId="web-security" />);
 
-    await user.type(screen.getByRole("textbox", { name: "Student name" }), "Aigerim");
+    await user.type(screen.getByRole("spinbutton", { name: "Student ID" }), "2");
     await user.click(screen.getByRole("button", { name: "Enroll" }));
 
     expect(
@@ -36,31 +37,68 @@ describe("EnrollForm", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           courseId: "web-security",
-          studentName: "Aigerim",
+          studentId: 2,
         }),
       },
     );
   });
 
-  it("shows FastAPI validation feedback", async () => {
+  it("shows Problem Details validation feedback", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn<typeof fetch>().mockResolvedValue({
         ok: false,
         status: 422,
         json: vi.fn().mockResolvedValue({
-          detail: [{ msg: "String should have at least 2 characters" }],
+          type: "https://example.com/problems/validation-error",
+          title: "Validation failed",
+          status: 422,
+          detail: "1 invalid value(s) in the request",
+          instance: "/enrollments",
+          errors: [
+            {
+              in: "body",
+              field: "studentId",
+              detail: "Field required",
+            },
+          ],
         }),
       } as unknown as Response),
     );
     const user = userEvent.setup();
     render(<EnrollForm courseId="web-security" />);
 
-    await user.type(screen.getByRole("textbox", { name: "Student name" }), "A");
+    await user.type(screen.getByRole("spinbutton", { name: "Student ID" }), "2");
     await user.click(screen.getByRole("button", { name: "Enroll" }));
 
     expect(
-      await screen.findByText("String should have at least 2 characters"),
+      await screen.findByText("studentId: Field required"),
+    ).toBeInTheDocument();
+  });
+
+  it("shows a Problem Details business error", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn<typeof fetch>().mockResolvedValue({
+        ok: false,
+        status: 409,
+        json: vi.fn().mockResolvedValue({
+          type: "https://example.com/problems/already-enrolled",
+          title: "Already enrolled",
+          status: 409,
+          detail: "Student is already enrolled in this course",
+          instance: "/enrollments",
+        }),
+      } as unknown as Response),
+    );
+    const user = userEvent.setup();
+    render(<EnrollForm courseId="ai-integration" />);
+
+    await user.type(screen.getByRole("spinbutton", { name: "Student ID" }), "2");
+    await user.click(screen.getByRole("button", { name: "Enroll" }));
+
+    expect(
+      await screen.findByText("Student is already enrolled in this course"),
     ).toBeInTheDocument();
   });
 });

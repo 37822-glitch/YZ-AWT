@@ -11,14 +11,17 @@ describe("generated API contract", () => {
       credits: 4,
       isElective: false,
       likes: 21,
+      level: "intermediate",
     };
     const enrollment: Enrollment = {
       id: 1,
       courseId: course.id,
-      studentName: "Aigerim",
+      studentId: 2,
+      enrolledAt: "2026-11-12T12:00:00Z",
     };
 
     expect(enrollment.courseId).toBe(course.id);
+    expect(enrollment.studentId).toBe(2);
     expect(course.isElective).toBe(false);
   });
 });

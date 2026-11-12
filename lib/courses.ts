@@ -1,7 +1,7 @@
 import type { components } from "@/lib/schema";
 
-export type Course = components["schemas"]["Course"];
-export type Enrollment = components["schemas"]["Enrollment"];
+export type Course = components["schemas"]["CourseOut"];
+export type Enrollment = components["schemas"]["EnrollmentOut"];
 
 const API_URL = process.env.API_URL;
 

@@ -11,12 +11,13 @@ type EnrollFormProps = {
 
 type FormStatus = "idle" | "sending" | "done" | "rejected" | "error";
 
-type ValidationResponse = {
-  detail?: Array<{ msg?: string }>;
+type ProblemDetails = {
+  detail?: string;
+  errors?: Array<{ field: string; detail: string }>;
 };
 
 export default function EnrollForm({ courseId }: EnrollFormProps) {
-  const [studentName, setStudentName] = useState("");
+  const [studentId, setStudentId] = useState("");
   const [status, setStatus] = useState<FormStatus>("idle");
   const [message, setMessage] = useState("");
 
@@ -31,21 +32,20 @@ export default function EnrollForm({ courseId }: EnrollFormProps) {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ courseId, studentName }),
+          body: JSON.stringify({ courseId, studentId: Number(studentId) }),
         },
       );
 
-      if (response.status === 422) {
-        const payload = (await response.json()) as ValidationResponse;
+      if (!response.ok) {
+        const payload = (await response.json()) as ProblemDetails;
+        const firstError = payload.errors?.[0];
         setStatus("rejected");
         setMessage(
-          payload.detail?.[0]?.msg ?? "The server rejected the enrollment data.",
+          firstError
+            ? `${firstError.field}: ${firstError.detail}`
+            : (payload.detail ?? "The server rejected the enrollment data."),
         );
         return;
-      }
-
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
       }
 
       const enrollment = (await response.json()) as Enrollment;
@@ -70,7 +70,7 @@ export default function EnrollForm({ courseId }: EnrollFormProps) {
           Enroll in this course
         </h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          Enter your name. FastAPI validates the request and returns your
+          Enter your student ID. FastAPI validates the request and returns your
           enrollment number.
         </p>
 
@@ -79,13 +79,16 @@ export default function EnrollForm({ courseId }: EnrollFormProps) {
           className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-end"
         >
           <label className="flex flex-1 flex-col gap-2 text-sm font-bold text-foreground">
-            Student name
+            Student ID
             <input
-              name="studentName"
-              value={studentName}
-              onChange={(event) => setStudentName(event.target.value)}
-              placeholder="Aigerim"
-              autoComplete="name"
+              type="number"
+              name="studentId"
+              value={studentId}
+              onChange={(event) => setStudentId(event.target.value)}
+              placeholder="2"
+              min="1"
+              step="1"
+              inputMode="numeric"
               required
               disabled={isSending}
               aria-describedby="enrollment-status"

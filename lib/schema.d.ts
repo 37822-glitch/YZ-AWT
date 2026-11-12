@@ -4,6 +4,24 @@
  */
 
 export interface paths {
+    "/graphql": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Handle Http Get */
+        get: operations["handle_http_get_graphql_get"];
+        put?: never;
+        /** Handle Http Post */
+        post: operations["handle_http_post_graphql_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/": {
         parameters: {
             query?: never;
@@ -28,8 +46,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Read Courses */
-        get: operations["read_courses_courses_get"];
+        /** List Courses */
+        get: operations["list_courses_courses_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -45,8 +63,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Read Course */
-        get: operations["read_course_courses__course_id__get"];
+        /** Get Course */
+        get: operations["get_course_courses__course_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -72,6 +90,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/students": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Student */
+        post: operations["create_student_students_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/enrollments": {
         parameters: {
             query?: never;
@@ -79,11 +114,62 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Read Enrollments */
-        get: operations["read_enrollments_enrollments_get"];
+        /** List Enrollments */
+        get: operations["list_enrollments_enrollments_get"];
         put?: never;
         /** Create Enrollment */
         post: operations["create_enrollment_enrollments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/students/{student_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Student */
+        get: operations["get_student_students__student_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/students/{student_id}/enrollments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Student Enrollments */
+        get: operations["list_student_enrollments_students__student_id__enrollments_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stats/courses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Course Stats */
+        get: operations["course_stats_stats_courses_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -94,8 +180,8 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** Course */
-        Course: {
+        /** CourseOut */
+        CourseOut: {
             /** Id */
             id: string;
             /** Title */
@@ -104,37 +190,85 @@ export interface components {
             description: string;
             /** Credits */
             credits: number;
-            /**
-             * Iselective
-             * @default false
-             */
+            /** Iselective */
             isElective: boolean;
-            /**
-             * Likes
-             * @default 0
-             */
+            /** Likes */
             likes: number;
+            /** Level */
+            level: string;
         };
-        /** Enrollment */
-        Enrollment: {
+        /** CourseStats */
+        CourseStats: {
             /** Courseid */
             courseId: string;
-            /** Studentname */
-            studentName: string;
+            /** Enrolled */
+            enrolled: number;
+        };
+        /** EnrollmentDetail */
+        EnrollmentDetail: {
             /** Id */
             id: number;
+            /** Courseid */
+            courseId: string;
+            /** Studentid */
+            studentId: number;
+            /**
+             * Enrolledat
+             * Format: date-time
+             */
+            enrolledAt: string;
+            /** Coursetitle */
+            courseTitle: string;
+            /** Studentname */
+            studentName: string;
         };
         /** EnrollmentIn */
         EnrollmentIn: {
             /** Courseid */
             courseId: string;
-            /** Studentname */
-            studentName: string;
+            /** Studentid */
+            studentId: number;
+        };
+        /** EnrollmentOut */
+        EnrollmentOut: {
+            /** Id */
+            id: number;
+            /** Courseid */
+            courseId: string;
+            /** Studentid */
+            studentId: number;
+            /**
+             * Enrolledat
+             * Format: date-time
+             */
+            enrolledAt: string;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** StudentIn */
+        StudentIn: {
+            /** Name */
+            name: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+        };
+        /** StudentOut */
+        StudentOut: {
+            /** Name */
+            name: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** Id */
+            id: number;
         };
         /** ValidationError */
         ValidationError: {
@@ -158,6 +292,53 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    handle_http_get_graphql_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The GraphiQL integrated development environment. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Not found if GraphiQL or query via GET are not enabled. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    handle_http_post_graphql_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
     read_root__get: {
         parameters: {
             query?: never;
@@ -180,12 +361,12 @@ export interface operations {
             };
         };
     };
-    read_courses_courses_get: {
+    list_courses_courses_get: {
         parameters: {
             query?: {
                 is_elective?: boolean | null;
-                sort?: "popular" | "title";
-                q?: string | null;
+                level?: string | null;
+                sort?: string;
                 page?: number;
                 page_size?: number;
             };
@@ -201,7 +382,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Course"][];
+                    "application/json": components["schemas"]["CourseOut"][];
                 };
             };
             /** @description Validation Error */
@@ -215,7 +396,7 @@ export interface operations {
             };
         };
     };
-    read_course_courses__course_id__get: {
+    get_course_courses__course_id__get: {
         parameters: {
             query?: never;
             header?: never;
@@ -232,7 +413,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Course"];
+                    "application/json": components["schemas"]["CourseOut"];
                 };
             };
             /** @description Validation Error */
@@ -263,7 +444,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Course"];
+                    "application/json": components["schemas"]["CourseOut"];
                 };
             };
             /** @description Validation Error */
@@ -277,7 +458,40 @@ export interface operations {
             };
         };
     };
-    read_enrollments_enrollments_get: {
+    create_student_students_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudentIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_enrollments_enrollments_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -292,7 +506,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Enrollment"][];
+                    "application/json": components["schemas"]["EnrollmentDetail"][];
                 };
             };
         };
@@ -316,7 +530,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Enrollment"];
+                    "application/json": components["schemas"]["EnrollmentOut"];
                 };
             };
             /** @description Validation Error */
@@ -326,6 +540,88 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_student_students__student_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                student_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_student_enrollments_students__student_id__enrollments_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                student_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnrollmentDetail"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    course_stats_stats_courses_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourseStats"][];
                 };
             };
         };
